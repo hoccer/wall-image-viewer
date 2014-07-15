@@ -3,7 +3,9 @@
   "description": "Viewer Component for Hoccer Wall",
   "version": "0.1.0",
   "repository": "git@github.com:hoccer/wall-image-viewer.git",
-  "dependencies": {},
+  "dependencies": {
+    "react": "^0.10.0"
+  },
   "devDependencies": {
     "browserify": "^4.2.1",
     "envify": "^1.2.1",
@@ -11,12 +13,6 @@
     "watchify": "^0.10.2"
   },
   "scripts": {
-    "start": "watchify src/main.js --verbose --debug --outfile=dist/bundle.js"
-  },
-  "browserify": {
-    "transform": [
-      "reactify",
-      "envify"
-    ]
+    "start": "watchify src/main.jsx --transform=reactify --extension=.jsx --verbose --debug --basedir=src --outfile=dist/bundle.js"
   }
 }
