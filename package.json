@@ -1,0 +1,13 @@
+{
+  "name": "wall-image-viewer",
+  "description": "Viewer Component for Hoccer Wall",
+  "version": "0.1.0",
+  "repository": "git@github.com:hoccer/wall-image-viewer.git",
+  "dependencies": {},
+  "devDependencies": {
+    "gulp-util": "^2.2.20",
+    "vinyl-source-stream": "^0.1.1",
+    "gulp": "^3.8.6",
+    "watchify": "^0.10.2"
+  }
+}
