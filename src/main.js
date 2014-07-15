@@ -4,4 +4,4 @@ var React = require('react');
 
 var ImageGridView = require('./views/image-grid-view');
 
-React.renderComponent(<ImageGridView />, document.body);
+React.renderComponent(new ImageGridView(), document.body);

@@ -13,6 +13,6 @@
     "watchify": "^0.10.2"
   },
   "scripts": {
-    "start": "watchify src/main.jsx --transform=reactify --extension=.jsx --verbose --debug --basedir=src --outfile=dist/bundle.js"
+    "start": "watchify src/main.js --transform=reactify --verbose --debug --basedir=src --outfile=dist/bundle.js"
   }
 }
