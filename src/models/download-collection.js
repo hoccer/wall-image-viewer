@@ -6,5 +6,5 @@ var DownloadModel = require('./download-model');
 
 module.exports = Backbone.Collection.extend({
   model: DownloadModel,
-  url: '/downloads'
+  url: '/api/downloads'
 });
