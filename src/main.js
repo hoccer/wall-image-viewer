@@ -1,3 +1,5 @@
+/** @jsx React.DOM */
+
 'use strict';
 
 var Backbone = require('backbone');
@@ -20,4 +22,8 @@ jQuery.ajaxPrefilter(function(options, originalOptions, jqXHR) {
 var images = new ImageCollection();
 images.fetch();
 
-React.renderComponent(new ImageGridView(), document.body);
+React.renderComponent(
+  /* jshint ignore:start */
+  <ImageGridView collection={images} />,
+  /* jshint ignore:end */
+  document.body);
