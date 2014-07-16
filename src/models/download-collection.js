@@ -2,9 +2,9 @@
 
 var Backbone = require('backbone');
 
-var ImageModel = require('./image-model');
+var DownloadModel = require('./download-model');
 
 module.exports = Backbone.Collection.extend({
-  model: ImageModel,
+  model: DownloadModel,
   url: '/downloads'
 });

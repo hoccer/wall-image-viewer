@@ -6,7 +6,7 @@ var Backbone = require('backbone');
 var React = require('react');
 var jQuery = require('jquery');
 
-var ImageCollection = require('./models/image-collection');
+var DownloadCollection = require('./models/download-collection');
 var ImageGridView = require('./views/image-grid-view');
 
 // Help Backbone find jQuery
@@ -19,8 +19,8 @@ jQuery.ajaxPrefilter(function(options, originalOptions, jqXHR) {
   }
 });
 
-var images = new ImageCollection();
-images.fetch();
+var images = new DownloadCollection();
+images.fetch({data: {mediaType: 'image'}});
 
 React.renderComponent(
   /* jshint ignore:start */
