@@ -6,6 +6,7 @@ var Backbone = require('backbone');
 var React = require('react');
 var jQuery = require('jquery');
 
+var Config = require('./config');
 var DownloadCollection = require('./models/download-collection');
 var ImageGridView = require('./views/image-grid-view');
 
@@ -15,7 +16,7 @@ Backbone.$ = jQuery;
 // Redirect all local AJAX requests to backend server
 jQuery.ajaxPrefilter(function(options, originalOptions, jqXHR) {
   if (options.url[0] == '/') {
-    options.url = "http://0.0.0.0:8080" + options.url;
+    options.url = Config.BACKEND_URL + options.url;
   }
 });
 

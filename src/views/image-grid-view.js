@@ -2,15 +2,15 @@
 
 'use strict';
 
-var React = require('react');
 var BackboneReactComponent = require('backbone-react-component');
+var React = require('react');
 
 module.exports = React.createClass({
   mixins: [BackboneReactComponent.mixin],
 
   renderImage: function(image) {
     /* jshint ignore:start */
-    return <img key={image.id} src={image.get('url')}/>;
+    return <img key={image.id} src={image.fileUrl()}/>;
     /* jshint ignore:end */
   },
 
