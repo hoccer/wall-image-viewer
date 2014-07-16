@@ -10,7 +10,7 @@ module.exports = React.createClass({
 
   renderImage: function(image) {
     /* jshint ignore:start */
-    return <img key={image.id} src={image.fileUrl()}/>;
+    return <img key={image.id} src={image.fileUrl()} width={100} height={100} />;
     /* jshint ignore:end */
   },
 
