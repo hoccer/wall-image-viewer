@@ -15,8 +15,12 @@ module.exports = React.createClass({
   },
 
   render: function() {
+    var imageViews = this.getCollection()
+      .take(16)
+      .map(this.renderImage);
+
     /* jshint ignore:start */
-    return <div>{this.getCollection().map(this.renderImage)}</div>;
+    return <div>{imageViews}</div>;
     /* jshint ignore:end */
   }
 });
