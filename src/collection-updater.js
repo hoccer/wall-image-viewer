@@ -51,16 +51,21 @@ CollectionUpdater.prototype._openWebSocket = function(url) {
   return socket;
 };
 
-CollectionUpdater.prototype.subscribe = function(path, collection) {
+CollectionUpdater.prototype.subscribe = function(path, collection, filter) {
+  var subscription = {
+    collection: collection,
+    filter: filter
+  };
+
   this._subscriptions[path] = _.union(
     this._subscriptions[path] || [],
-    collection
+    subscription
   );
 
-  this._doSubscribe(path, collection);
+  this._doSubscribe(path);
 };
 
-CollectionUpdater.prototype._doSubscribe = function(path, collection) {
+CollectionUpdater.prototype._doSubscribe = function(path) {
   this._send({
     command: 'subscribe',
     path: path
@@ -68,9 +73,7 @@ CollectionUpdater.prototype._doSubscribe = function(path, collection) {
 };
 
 CollectionUpdater.prototype._onopen = function() {
-  _.each(_.keys(this._subscriptions), function(path) {
-    _.each(this._subscriptions[path], this._doSubscribe.bind(this, path));
-  }, this);
+  _.each(_.keys(this._subscriptions), this._doSubscribe.bind(this));
 
   this._connectPromise.resolve();
   this._connectPromise = null;
@@ -79,8 +82,13 @@ CollectionUpdater.prototype._onopen = function() {
 CollectionUpdater.prototype._onmessage = function(event) {
   var message = JSON.parse(event.data);
 
-  _.each(this._subscriptions[message.path], function(collection) {
-    collection.add(message.data, {at: 0, merge: true});
+  _.each(this._subscriptions[message.path], function(subscription) {
+    var filter = subscription.filter;
+    var object = message.data;
+
+    if (!filter || filter(object)) {
+      subscription.collection.add(object, {at: 0, merge: true});
+    }
   });
 };
 
