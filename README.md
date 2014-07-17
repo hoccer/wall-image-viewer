@@ -4,7 +4,7 @@
 
 * Install npm: `brew install npm`
 * Install dependencies: `npm install`
-* Start watcher task: `npm start`
+* Start watcher task: `gulp watch`
 * Start simple web server: `python -m SimpleHTTPServer`
-* Start Hoccer XoWebClientBackend
+* Start Hoccer WebClientBackend
 * Browse to `http://localhost:8000/`

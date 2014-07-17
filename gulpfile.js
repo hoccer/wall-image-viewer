@@ -13,4 +13,8 @@ gulp.task('browserify', function() {
     .pipe(gulp.dest('./dist/'));
 });
 
+gulp.task('watch', function() {
+  gulp.watch('./src/**/*.js', ['browserify']);
+});
+
 gulp.task('default', ['browserify']);
