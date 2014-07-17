@@ -40,7 +40,7 @@ CollectionUpdater.prototype._onmessage = function(event) {
   var message = JSON.parse(event.data);
 
   _.each(this.subscriptions[message.path], function(collection) {
-    collection.add(message.data, {merge: true});
+    collection.add(message.data, {at: 0, merge: true});
   });
 };
 
