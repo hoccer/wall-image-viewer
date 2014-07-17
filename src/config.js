@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = {
-  BACKEND_URL: 'http://localhost:8080'
+  BACKEND_URL: 'http://localhost:5000'
 };
