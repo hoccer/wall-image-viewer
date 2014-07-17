@@ -29,7 +29,6 @@ images.fetch({data: {mediaType: 'image'}});
 var updateUrl = Config.BACKEND_URL.replace('http', 'ws') + '/updates';
 var updater = new CollectionUpdater(updateUrl);
 updater.subscribe('/api/downloads', images);
-updater.start();
 
 // Render root view component
 React.renderComponent(

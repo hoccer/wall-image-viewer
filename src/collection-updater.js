@@ -3,16 +3,18 @@
 var _ = require('underscore');
 var Promise = require('promise');
 
-var RESTART_TIMEOUT = 10;
+var RECONNECT_TIMEOUT = 10;
 
 var CollectionUpdater = module.exports = function(url) {
   this._connectPromise = null;
   this._socket = null;
   this._subscriptions = {};
   this._url = url;
+
+  this._connect();
 };
 
-CollectionUpdater.prototype.start = function() {
+CollectionUpdater.prototype._connect = function() {
   var _this = this;
 
   var promise = new Promise(function(resolve, reject) {
@@ -88,20 +90,20 @@ CollectionUpdater.prototype._onclose = function() {
     this._connectPromise = null;
   }
 
-  this._scheduleRestart();
+  this._scheduleReconnect();
 };
 
-CollectionUpdater.prototype._scheduleRestart = function() {
+CollectionUpdater.prototype._scheduleReconnect = function() {
   console.warn(
     'No connection to ' + this._url +
-    ', retrying in ' + RESTART_TIMEOUT + ' seconds.'
+    ', retrying in ' + RECONNECT_TIMEOUT + ' seconds.'
   );
 
   var _this = this;
 
   setTimeout(function () {
-    _this.start().catch(_this._scheduleRestart.bind(_this));
-  }, RESTART_TIMEOUT * 1000);
+    _this._connect().catch(_this._scheduleReconnect.bind(_this));
+  }, RECONNECT_TIMEOUT * 1000);
 };
 
 CollectionUpdater.prototype._send = function(payload) {
