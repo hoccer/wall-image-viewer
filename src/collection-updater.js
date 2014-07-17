@@ -54,6 +54,8 @@ CollectionUpdater.prototype._doSubscribe = function(path) {
 };
 
 CollectionUpdater.prototype._onopen = function() {
+  console.log('Connected to ' + this._url);
+
   _.each(_.keys(this._subscriptions), this._doSubscribe.bind(this));
 };
 
