@@ -13,10 +13,8 @@
   "devDependencies": {
     "browserify": "^4.2.1",
     "envify": "^1.2.1",
+    "gulp": "^3.8.6",
     "reactify": "^0.13.1",
-    "watchify": "^0.10.2"
-  },
-  "scripts": {
-    "start": "watchify src/main.js --transform=reactify --verbose --debug --basedir=src --outfile=dist/bundle.js"
+    "vinyl-source-stream": "^0.1.1"
   }
 }
