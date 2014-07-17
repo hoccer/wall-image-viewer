@@ -8,6 +8,6 @@ module.exports = Backbone.Model.extend({
   idAttribute: 'clientDownloadId',
 
   fileUrl: function() {
-    return Config.BACKEND_URL + "/" + this.get('dataFile');
+    return Config.BACKEND_URL + '/' + this.get('dataFile');
   }
 });
