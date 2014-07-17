@@ -6,6 +6,7 @@ var Backbone = require('backbone');
 var React = require('react');
 var jQuery = require('jquery');
 
+var CollectionUpdater = require('./collection-updater');
 var Config = require('./config');
 var DownloadCollection = require('./models/download-collection');
 var ImageGridView = require('./views/image-grid-view');
@@ -20,31 +21,17 @@ jQuery.ajaxPrefilter(function(options, originalOptions, jqXHR) {
   }
 });
 
+// Initialize image collection
 var images = new DownloadCollection();
 images.fetch({data: {mediaType: 'image'}});
 
-// ---8<-----------------------------------------------------------------------
+// Update image collection with WebSocket updates
+var updateUrl = Config.BACKEND_URL.replace('http', 'ws') + '/updates';
+var updater = new CollectionUpdater(updateUrl);
+updater.subscribe('/api/downloads', images);
+updater.start();
 
-var updatesUrl = Config.BACKEND_URL.replace('http', 'ws') + '/updates';
-var socket = new WebSocket(updatesUrl);
-
-socket.onopen = function() {
-  socket.send(JSON.stringify({
-    command: 'subscribe',
-    path: '/api/downloads'
-  }));
-};
-
-socket.onmessage = function(event) {
-  var object = JSON.parse(event.data);
-
-  if (object.hasOwnProperty('clientDownloadId')) {
-    images.add(object, {merge: true});
-  }
-};
-
-// ---8<-----------------------------------------------------------------------
-
+// Render root view component
 React.renderComponent(
   /* jshint ignore:start */
   <ImageGridView collection={images} />,
