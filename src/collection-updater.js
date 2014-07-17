@@ -1,12 +1,10 @@
 'use strict';
 
 var _ = require('underscore');
-var Promise = require('promise');
 
 var RECONNECT_TIMEOUT = 10;
 
 var CollectionUpdater = module.exports = function(url) {
-  this._connectPromise = null;
   this._socket = null;
   this._subscriptions = {};
   this._url = url;
@@ -15,40 +13,23 @@ var CollectionUpdater = module.exports = function(url) {
 };
 
 CollectionUpdater.prototype._connect = function() {
-  var _this = this;
-
-  var promise = new Promise(function(resolve, reject) {
-    if (_this._connection) {
-      resolve();
-    } else if (_this._connectPromise) {
-      return _this._connectPromise.promise;
-    } else {
-      _this._connectPromise = {
-        promise: promise,
-        resolve: resolve,
-        reject: reject
-      };
-
-      _this._socket = _this._openWebSocket(_this._url);
-    }
-  });
-
-  return promise;
+  try {
+    this._socket = new WebSocket(this._url);
+    this._socket.onopen = this._onopen.bind(this);
+    this._socket.onmessage = this._onmessage.bind(this);
+    this._socket.onclose = this._onclose.bind(this);
+  } catch (exception) {
+    this._scheduleReconnect();
+  }
 };
 
-CollectionUpdater.prototype._openWebSocket = function(url) {
-  var socket = null;
+CollectionUpdater.prototype._scheduleReconnect = function() {
+  console.warn(
+    'No connection to ' + this._url +
+    ', retrying in ' + RECONNECT_TIMEOUT + ' seconds.'
+  );
 
-  try {
-    socket = new WebSocket(url);
-    socket.onopen = this._onopen.bind(this);
-    socket.onmessage = this._onmessage.bind(this);
-    socket.onclose = this._onclose.bind(this);
-  } catch (exception) {
-    // returning null socket
-  }
-
-  return socket;
+  setTimeout(this._connect.bind(this), RECONNECT_TIMEOUT * 1000);
 };
 
 CollectionUpdater.prototype.subscribe = function(path, collection, filter) {
@@ -74,9 +55,6 @@ CollectionUpdater.prototype._doSubscribe = function(path) {
 
 CollectionUpdater.prototype._onopen = function() {
   _.each(_.keys(this._subscriptions), this._doSubscribe.bind(this));
-
-  this._connectPromise.resolve();
-  this._connectPromise = null;
 };
 
 CollectionUpdater.prototype._onmessage = function(event) {
@@ -93,25 +71,7 @@ CollectionUpdater.prototype._onmessage = function(event) {
 };
 
 CollectionUpdater.prototype._onclose = function() {
-  if (this._connectPromise) {
-    this._connectPromise.reject();
-    this._connectPromise = null;
-  }
-
   this._scheduleReconnect();
-};
-
-CollectionUpdater.prototype._scheduleReconnect = function() {
-  console.warn(
-    'No connection to ' + this._url +
-    ', retrying in ' + RECONNECT_TIMEOUT + ' seconds.'
-  );
-
-  var _this = this;
-
-  setTimeout(function () {
-    _this._connect().catch(_this._scheduleReconnect.bind(_this));
-  }, RECONNECT_TIMEOUT * 1000);
 };
 
 CollectionUpdater.prototype._send = function(payload) {
