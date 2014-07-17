@@ -6,10 +6,10 @@ var Promise = require('promise');
 var RESTART_TIMEOUT = 10;
 
 var CollectionUpdater = module.exports = function(url) {
-  this.connectPromise = null;
-  this.socket = null;
-  this.subscriptions = {};
-  this.url = url;
+  this._connectPromise = null;
+  this._socket = null;
+  this._subscriptions = {};
+  this._url = url;
 };
 
 CollectionUpdater.prototype.start = function() {
@@ -18,16 +18,16 @@ CollectionUpdater.prototype.start = function() {
   var promise = new Promise(function(resolve, reject) {
     if (_this._connection) {
       resolve();
-    } else if (_this.connectPromise) {
-      return _this.connectPromise.promise;
+    } else if (_this._connectPromise) {
+      return _this._connectPromise.promise;
     } else {
-      _this.connectPromise = {
+      _this._connectPromise = {
         promise: promise,
         resolve: resolve,
         reject: reject
       };
 
-      _this.socket = _this._openWebSocket(_this.url);
+      _this._socket = _this._openWebSocket(_this._url);
     }
   });
 
@@ -50,8 +50,8 @@ CollectionUpdater.prototype._openWebSocket = function(url) {
 };
 
 CollectionUpdater.prototype.subscribe = function(path, collection) {
-  this.subscriptions[path] = _.union(
-    this.subscriptions[path] || [],
+  this._subscriptions[path] = _.union(
+    this._subscriptions[path] || [],
     collection
   );
 
@@ -66,26 +66,26 @@ CollectionUpdater.prototype._doSubscribe = function(path, collection) {
 };
 
 CollectionUpdater.prototype._onopen = function() {
-  _.each(_.keys(this.subscriptions), function(path) {
-    _.each(this.subscriptions[path], this._doSubscribe.bind(this, path));
+  _.each(_.keys(this._subscriptions), function(path) {
+    _.each(this._subscriptions[path], this._doSubscribe.bind(this, path));
   }, this);
 
-  this.connectPromise.resolve();
-  this.connectPromise = null;
+  this._connectPromise.resolve();
+  this._connectPromise = null;
 };
 
 CollectionUpdater.prototype._onmessage = function(event) {
   var message = JSON.parse(event.data);
 
-  _.each(this.subscriptions[message.path], function(collection) {
+  _.each(this._subscriptions[message.path], function(collection) {
     collection.add(message.data, {at: 0, merge: true});
   });
 };
 
 CollectionUpdater.prototype._onclose = function() {
-  if (this.connectPromise) {
-    this.connectPromise.reject();
-    this.connectPromise = null;
+  if (this._connectPromise) {
+    this._connectPromise.reject();
+    this._connectPromise = null;
   }
 
   this._scheduleRestart();
@@ -93,7 +93,7 @@ CollectionUpdater.prototype._onclose = function() {
 
 CollectionUpdater.prototype._scheduleRestart = function() {
   console.warn(
-    'No connection to ' + this.url +
+    'No connection to ' + this._url +
     ', retrying in ' + RESTART_TIMEOUT + ' seconds.'
   );
 
@@ -105,7 +105,7 @@ CollectionUpdater.prototype._scheduleRestart = function() {
 };
 
 CollectionUpdater.prototype._send = function(payload) {
-  if (this.socket && this.socket.readyState === WebSocket.OPEN) {
-    this.socket.send(JSON.stringify(payload));
+  if (this._socket && this._socket.readyState === WebSocket.OPEN) {
+    this._socket.send(JSON.stringify(payload));
   }
 };
