@@ -12,7 +12,7 @@ gulp.task('browserify', function() {
     .bundle({ debug: true })
     .pipe(source('bundle.js'))
     .pipe(gulp.dest('./dist'))
-    .pipe(connect.reload());
+    .pipe(connect.reload()); 
 });
 
 gulp.task('less', function() {
@@ -30,7 +30,7 @@ gulp.task('server', function() {
   });
 });
 
-gulp.task('watch', ['server'], function() {
+gulp.task('watch', ['default', 'server'], function() {
   gulp.watch('./js/**/*.js', ['browserify']);
   gulp.watch('./less/**/*.less', ['less']);
 });
