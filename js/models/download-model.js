@@ -2,12 +2,12 @@
 
 var Backbone = require('backbone');
 
-var Config = require('../config');
+var config = require('../../config.json');
 
 module.exports = Backbone.Model.extend({
   idAttribute: 'clientDownloadId',
 
   fileUrl: function() {
-    return Config.BACKEND_URL + '/' + this.get('dataFile');
+    return config.backendUrl + '/' + this.get('dataFile');
   }
 });

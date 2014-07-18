@@ -2,10 +2,10 @@
 
 var Backbone = require('backbone');
 
-var Config = require('../config');
+var config = require('../../config.json');
 var DownloadModel = require('./download-model');
 
 module.exports = Backbone.Collection.extend({
   model: DownloadModel,
-  url: Config.BACKEND_URL + '/api/downloads'
+  url: config.backendUrl + '/api/downloads'
 });

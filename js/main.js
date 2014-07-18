@@ -5,7 +5,7 @@ var React = require('react');
 var jQuery = require('jquery');
 
 var CollectionUpdater = require('./collection-updater');
-var Config = require('./config');
+var config = require('../config.json');
 var DownloadCollection = require('./models/download-collection');
 var imageGridView = require('./views/image-grid-view');
 
@@ -17,7 +17,7 @@ var images = new DownloadCollection();
 images.fetch({data: {mediaType: 'image'}});
 
 // Update image collection with WebSocket updates
-var updateUrl = Config.BACKEND_URL.replace('http', 'ws') + '/updates';
+var updateUrl = config.backendUrl.replace('http', 'ws') + '/updates';
 var updater = new CollectionUpdater(updateUrl);
 updater.subscribe('/api/downloads', images, function(download) {
   return download.mediaType === 'image';
