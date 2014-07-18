@@ -6,5 +6,15 @@
   },
 
   "browser": true,
-  "globalstrict": true
+  "camelcase": true,
+  "eqeqeq": true,
+  "globalstrict": true,
+  "indent": 2,
+  "latedef": true,
+  "newcap": true,
+  "quotmark": "single",
+  "trailing": true,
+  "undef": true,
+  "maxlen": 80,
+  "strict": true
 }

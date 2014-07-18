@@ -16,7 +16,7 @@ Backbone.$ = jQuery;
 
 // Redirect all local AJAX requests to backend server
 jQuery.ajaxPrefilter(function(options, originalOptions, jqXHR) {
-  if (options.url[0] == '/') {
+  if (options.url[0] === '/') {
     options.url = Config.BACKEND_URL + options.url;
   }
 });
@@ -29,7 +29,7 @@ images.fetch({data: {mediaType: 'image'}});
 var updateUrl = Config.BACKEND_URL.replace('http', 'ws') + '/updates';
 var updater = new CollectionUpdater(updateUrl);
 updater.subscribe('/api/downloads', images, function(download) {
-  return download.mediaType == 'image';
+  return download.mediaType === 'image';
 });
 
 // Render root view component
