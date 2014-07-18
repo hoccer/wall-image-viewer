@@ -4,13 +4,11 @@ var browserify = require('browserify');
 var connect = require('gulp-connect');
 var gulp = require('gulp');
 var less = require('gulp-less');
-var reactify = require('reactify');
 var source = require('vinyl-source-stream');
 var sourcemaps = require('gulp-sourcemaps');
 
 gulp.task('browserify', function() {
   return browserify('./js/main.js')
-    .transform(reactify)
     .bundle({ debug: true })
     .pipe(source('bundle.js'))
     .pipe(gulp.dest('./dist'))

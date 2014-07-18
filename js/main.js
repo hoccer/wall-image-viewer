@@ -1,5 +1,3 @@
-/** @jsx React.DOM */
-
 'use strict';
 
 var Backbone = require('backbone');
@@ -9,7 +7,7 @@ var jQuery = require('jquery');
 var CollectionUpdater = require('./collection-updater');
 var Config = require('./config');
 var DownloadCollection = require('./models/download-collection');
-var ImageGridView = require('./views/image-grid-view');
+var imageGridView = require('./views/image-grid-view');
 
 // Help Backbone find jQuery
 Backbone.$ = jQuery;
@@ -26,8 +24,4 @@ updater.subscribe('/api/downloads', images, function(download) {
 });
 
 // Render root view component
-React.renderComponent(
-  /* jshint ignore:start */
-  <ImageGridView collection={images} />,
-  /* jshint ignore:end */
-  document.body);
+React.renderComponent(imageGridView({collection: images}), document.body);
