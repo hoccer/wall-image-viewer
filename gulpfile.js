@@ -12,7 +12,7 @@ gulp.task('browserify', function() {
     .bundle({ debug: true })
     .pipe(source('bundle.js'))
     .pipe(gulp.dest('./dist'))
-    .pipe(connect.reload()); 
+    .pipe(connect.reload());
 });
 
 gulp.task('less', function() {
