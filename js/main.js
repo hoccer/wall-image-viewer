@@ -14,13 +14,6 @@ var ImageGridView = require('./views/image-grid-view');
 // Help Backbone find jQuery
 Backbone.$ = jQuery;
 
-// Redirect all local AJAX requests to backend server
-jQuery.ajaxPrefilter(function(options, originalOptions, jqXHR) {
-  if (options.url[0] === '/') {
-    options.url = Config.BACKEND_URL + options.url;
-  }
-});
-
 // Initialize image collection
 var images = new DownloadCollection();
 images.fetch({data: {mediaType: 'image'}});
