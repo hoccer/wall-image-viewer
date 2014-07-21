@@ -1,0 +1,8 @@
+{
+  "testing": {
+    "backendUrl": "http://localhost:5000"
+  },
+  "production": {
+    "backendUrl": "http://receiver.talk.hoccer.de:8080"
+  }
+}

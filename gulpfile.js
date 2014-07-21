@@ -2,12 +2,28 @@
 
 var browserify = require('browserify');
 var connect = require('gulp-connect');
+var fs = require('fs');
 var gulp = require('gulp');
 var less = require('gulp-less');
 var source = require('vinyl-source-stream');
 var sourcemaps = require('gulp-sourcemaps');
 
-gulp.task('browserify', function() {
+var argv = require('yargs')
+  .default('environment', 'testing')
+  .argv;
+
+gulp.task('configure', function() {
+  var environment = argv.environment;
+  var config = require('./configurations.json')[environment];
+
+  if (!config) {
+    throw 'Missing configuration for environment "' + environment + '"';
+  }
+
+  fs.writeFileSync('config.json', JSON.stringify(config));
+});
+
+gulp.task('browserify', ['configure'], function() {
   return browserify('./js/main.js')
     .bundle({ debug: true })
     .pipe(source('bundle.js'))
