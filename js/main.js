@@ -5,7 +5,7 @@ var React = require('react');
 var jQuery = require('jquery');
 
 var CollectionUpdater = require('./collection-updater');
-var config = require('../config.json');
+var config = require('./config');
 var DownloadCollection = require('./models/download-collection');
 var imageGridView = require('./views/image-grid-view');
 

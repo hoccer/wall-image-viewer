@@ -2,7 +2,7 @@
 
 var Backbone = require('backbone');
 
-var config = require('../../config.json');
+var config = require('../config');
 var DownloadModel = require('./download-model');
 
 module.exports = Backbone.Collection.extend({

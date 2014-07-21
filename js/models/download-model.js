@@ -2,7 +2,7 @@
 
 var Backbone = require('backbone');
 
-var config = require('../../config.json');
+var config = require('../config');
 
 module.exports = Backbone.Model.extend({
   idAttribute: 'clientDownloadId',
