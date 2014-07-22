@@ -19,6 +19,7 @@ CollectionUpdater.prototype._connect = function() {
     this._socket.onmessage = this._onmessage.bind(this);
     this._socket.onclose = this._onclose.bind(this);
   } catch (exception) {
+    console.error(exception);
     this._scheduleReconnect();
   }
 };
