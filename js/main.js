@@ -1,8 +1,8 @@
 'use strict';
 
 var Backbone = require('backbone');
-var React = require('react');
 var jQuery = require('jquery');
+var React = require('react');
 
 var CollectionUpdater = require('./collection-updater');
 var config = require('./config');
