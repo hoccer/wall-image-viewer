@@ -17,8 +17,14 @@ var images = new DownloadCollection();
 images.fetch({data: {mediaType: 'image'}});
 
 // Update image collection with WebSocket updates
-var updateUrl = config.backendUrl.replace('http', 'ws') + '/updates';
-var updater = new CollectionUpdater(updateUrl);
+var updateUrl = function(backendUrl) {
+  var url = backendUrl ?
+            backendUrl.replace('http', 'ws') :
+            'ws://' + window.location.host;
+  return url + '/updates';
+};
+
+var updater = new CollectionUpdater(updateUrl(config.backendUrl));
 updater.subscribe('/api/downloads', images, function(download) {
   return download.mediaType === 'image';
 });
