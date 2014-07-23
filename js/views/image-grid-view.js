@@ -7,9 +7,11 @@ module.exports = React.createClass({
   mixins: [BackboneReactComponent.mixin],
 
   renderImage: function(image) {
-    return React.DOM.img({
+    return React.DOM.div({
       key: image.id,
-      src: image.fileUrl(),
+      style: {
+        'background-image': 'url(' + image.fileUrl() + ')'
+      },
       className: 'image'
     });
   },
