@@ -36,8 +36,10 @@ var imageStream = Bacon.fromEventTarget(images, 'sync')
   .mapEnd()
   .flatMap(function(collection) {
     if (collection) {
+      // put initial images into the stream
       return Bacon.fromArray(collection.take(config.numCells));
     } else {
+      // put updated images into the stream, with throttling
       return Bacon.fromEventTarget(images, 'add')
         .bufferingThrottle(config.updateDelay * 1000);
     }
