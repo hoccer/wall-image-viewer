@@ -4,9 +4,17 @@ var querystring = require('querystring');
 var _ = require('underscore');
 
 var defaults = {
-  backendUrl: '',  // URL of the WebClient Backend, including schema
-  numCells: 15,    // number of cells in the image grid
-  updateDelay: 5   // minimum interval between incoming images, in seconds
+  // URL of the WebClient Backend, including schema
+  backendUrl: '',
+
+  // number of cells in the image grid
+  numCells: 15,
+
+  // time new images are shown fullscreen, in seconds
+  fullscreenDuration: 5000,
+
+  // minimum delay before showing next image, in seconds
+  nextImageDelay: 1000
 };
 
 var query = querystring.parse(window.location.search.substr(1));

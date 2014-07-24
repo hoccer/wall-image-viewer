@@ -48,7 +48,7 @@ images.fetch({data: {mediaType: 'image'}}).then(function() {
 
   // Update image cells when image collection changes
   var imageStream = Bacon.fromEventTarget(images, 'add')
-    .bufferingThrottle(config.updateDelay * 1000);
+    .bufferingThrottle((config.fullscreenDuration + config.nextImageDelay));
 
   var shuffledCellStream = imageStream
     .map(1).scan(0, function(x, y) {
@@ -72,7 +72,7 @@ images.fetch({data: {mediaType: 'image'}}).then(function() {
     });
 
   imageStream
-    .delay(0.8 * config.updateDelay * 1000)
+    .delay(config.fullscreenDuration)
     .onValue(function() {
       $overlay.addClass('hidden');
     });
