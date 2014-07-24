@@ -12,62 +12,52 @@ var DownloadCollection = require('./models/download-collection');
 // Help Backbone find jQuery
 Backbone.$ = $;
 
-// Initialize image collection
-var images = new DownloadCollection();
-images.fetch({data: {mediaType: 'image'}});
-
-// Update image collection with WebSocket updates
-var updateUrl = function(backendUrl) {
-  var url = backendUrl ?
-            backendUrl.replace('http', 'ws') :
-            'ws://' + window.location.host;
-  return url + '/updates';
+var addImageToCell = function(params) {
+  var image = params[0];
+  var $cell = params[1];
+  $cell.css('background-image', 'url(' + image.fileUrl() + ')');
 };
 
-var observer = new WebSocketObserver(updateUrl(config.backendUrl));
-observer.subscribe('/api/downloads', function(download) {
-  if (download.mediaType === 'image') {
-    images.add(download, {at: 0, merge: true});
-  }
-});
+// Initialize image collection
+var images = new DownloadCollection();
+images.fetch({data: {mediaType: 'image'}}).then(function() {
+  // Initialize the grid
+  var shuffledCells = _.chain(_.range(config.numCells))
+    .shuffle()
+    .map(function(number) {
+      return $('#cell-' + number);
+    })
+    .value();
 
-// Update image cells when image collection changes
+  _.each(_.zip(images.take(config.numCells), shuffledCells), addImageToCell);
 
-var imageStream = Bacon.fromEventTarget(images, 'sync')
-  .take(1)
-  .mapEnd()
-  .flatMap(function(collection) {
-    if (collection) {
-      // put initial images into the stream
-      return Bacon.fromArray(collection.take(config.numCells));
-    } else {
-      // put updated images into the stream, with throttling
-      return Bacon.fromEventTarget(images, 'add')
-        .bufferingThrottle(config.updateDelay * 1000);
+  // Update image collection with WebSocket updates
+  var updateUrl = function(backendUrl) {
+    var url = backendUrl ?
+              backendUrl.replace('http', 'ws') :
+              'ws://' + window.location.host;
+    return url + '/updates';
+  };
+
+  var observer = new WebSocketObserver(updateUrl(config.backendUrl));
+  observer.subscribe('/api/downloads', function(download) {
+    if (download.mediaType === 'image') {
+      images.add(download, {at: 0, merge: true});
     }
   });
 
-var shuffledCells = _.chain(_.range(config.numCells))
-  .shuffle()
-  .map(function(number) {
-    return $('#cell-' + number);
-  })
-  .value();
+  // Update image cells when image collection changes
+  var imageStream = Bacon.fromEventTarget(images, 'add')
+    .bufferingThrottle(config.updateDelay * 1000);
 
-var shuffledCellStream = imageStream
-  .map(1).scan(0, function(x, y) {
-    return x + y;
-  })
-  .map(function(count) {
-    return shuffledCells[count % shuffledCells.length];
-  });
+  var shuffledCellStream = imageStream
+    .map(1).scan(0, function(x, y) {
+      return x + y;
+    })
+    .map(function(count) {
+      return shuffledCells[count % shuffledCells.length];
+    });
 
-Bacon.zipWith(function(image, $cell) {
-  return {
-    image: image,
-    $cell: $cell
-  };
-}, imageStream, shuffledCellStream)
-  .onValue(function(value) {
-    value.$cell.css('background-image', 'url(' + value.image.fileUrl() + ')');
-  });
+  Bacon.zipAsArray(imageStream, shuffledCellStream)
+    .onValue(addImageToCell);
+});
