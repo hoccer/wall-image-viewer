@@ -1,9 +1,36 @@
+@background-color: #f0f0f0;
+@image-spacing: 10px;
+
+html {
+  height: 100%;
+}
+
+body {
+  height: 100%;
+
+  box-sizing:border-box;
+  margin: 0px;
+  padding: 0.5 * @image-spacing;
+
+  background-color: @background-color;
+}
+
+.image-grid {
+  height: 100%;
+
+  // avoid whitespace between rows,
+  // see http://davidwalsh.name/remove-whitespace-inline-block
+  font-size: 0;
+}
+
 .image {
   display: inline-block;
   
   width: 20%;
-  height: 0;
-  padding-bottom: 20%;
+  height: 33.33%;
+
+  box-sizing:border-box;
+  border: 0.5 * @image-spacing solid @background-color;
 
   background-position: center center;
   background-size: cover;

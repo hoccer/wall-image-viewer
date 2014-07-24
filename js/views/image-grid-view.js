@@ -18,9 +18,11 @@ module.exports = React.createClass({
 
   render: function() {
     var imageViews = this.getCollection()
-      .take(16)
+      .take(15)
       .map(this.renderImage);
 
-    return React.DOM.div(null, imageViews);
+    return React.DOM.div({
+      className: 'image-grid'
+    }, imageViews);
   }
 });
