@@ -13,14 +13,14 @@ var DownloadCollection = require('./models/download-collection');
 Backbone.$ = $;
 
 var addImageToCell = function(params) {
-  var image = params[0];
+  var imageModel = params[0];
   var $cell = params[1];
-  $cell.css('background-image', 'url(' + image.fileUrl() + ')');
+  $cell.css('background-image', 'url(' + imageModel.fileUrl() + ')');
 };
 
 // Initialize image collection
-var images = new DownloadCollection();
-images.fetch({data: {mediaType: 'image'}}).then(function() {
+var imageCollection = new DownloadCollection();
+imageCollection.fetch({data: {mediaType: 'image'}}).then(function() {
   // Initialize the grid
   var shuffledCells = _.chain(_.range(config.numCells))
     .shuffle()
@@ -29,7 +29,7 @@ images.fetch({data: {mediaType: 'image'}}).then(function() {
     })
     .value();
 
-  _.each(_.zip(images.take(config.numCells), shuffledCells), addImageToCell);
+  _.each(_.zip(imageCollection.take(config.numCells), shuffledCells), addImageToCell);
 
   // Update image collection with WebSocket updates
   var updateUrl = function(backendUrl) {
@@ -42,24 +42,41 @@ images.fetch({data: {mediaType: 'image'}}).then(function() {
   var observer = new WebSocketObserver(updateUrl(config.backendUrl));
   observer.subscribe('/api/downloads', function(download) {
     if (download.mediaType === 'image') {
-      images.add(download, {at: 0, merge: true});
+      imageCollection.add(download, {at: 0, merge: true});
     }
   });
 
-  // Show new images fullscreen
-  var imageStream = Bacon.fromEventTarget(images, 'add')
+  // Load data for new images
+  var imageModelStream = Bacon.fromEventTarget(imageCollection, 'add')
     .bufferingThrottle((config.fullscreenDuration + config.nextImageDelay));
 
+  var imageElementStream = imageModelStream
+    .flatMap(function(imageModel) {
+      var imageElement = new Image();
+      imageElement.src = imageModel.fileUrl();
+
+      return Bacon.mergeAll(
+        Bacon.fromEventTarget(imageElement, 'load'),
+        Bacon.fromEventTarget(imageElement, 'error')
+      ).take(1);
+    });
+
+  var loadedImageModelStream = imageModelStream
+    .zip(imageElementStream, function(imageModel) {
+      return imageModel;
+    });
+
+  // Show new images fullscreen
   var $overlay = $('#overlay');
   var $zoomImage = $('#zoom-image');
 
-  imageStream
-    .onValue(function(image) {
-      $zoomImage.attr('src', image.fileUrl());
+  loadedImageModelStream
+    .onValue(function(imageModel) {
+      $zoomImage.attr('src', imageModel.fileUrl());
       $overlay.removeClass('hidden');
     });
 
-  var hideImageStream = imageStream
+  var hideImageStream = loadedImageModelStream
     .delay(config.fullscreenDuration);
 
   hideImageStream
@@ -68,7 +85,7 @@ images.fetch({data: {mediaType: 'image'}}).then(function() {
     });
 
   // Add new images to grid when leaving fullscreen
-  var shuffledCellStream = imageStream
+  var shuffledCellStream = loadedImageModelStream
     .map(1).scan(0, function(x, y) {
       return x + y;
     })
