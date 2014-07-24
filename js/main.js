@@ -46,22 +46,10 @@ images.fetch({data: {mediaType: 'image'}}).then(function() {
     }
   });
 
-  // Update image cells when image collection changes
+  // Show new images fullscreen
   var imageStream = Bacon.fromEventTarget(images, 'add')
     .bufferingThrottle((config.fullscreenDuration + config.nextImageDelay));
 
-  var shuffledCellStream = imageStream
-    .map(1).scan(0, function(x, y) {
-      return x + y;
-    })
-    .map(function(count) {
-      return shuffledCells[count % shuffledCells.length];
-    });
-
-  Bacon.zipAsArray(imageStream, shuffledCellStream)
-    .onValue(addImageToCell);
-
-  // Show new images fullscreen
   var $overlay = $('#overlay');
   var $zoomImage = $('#zoom-image');
 
@@ -71,9 +59,24 @@ images.fetch({data: {mediaType: 'image'}}).then(function() {
       $overlay.removeClass('hidden');
     });
 
-  imageStream
-    .delay(config.fullscreenDuration)
+  var hideImageStream = imageStream
+    .delay(config.fullscreenDuration);
+
+  hideImageStream
     .onValue(function() {
       $overlay.addClass('hidden');
     });
+
+  // Add new images to grid when leaving fullscreen
+  var shuffledCellStream = imageStream
+    .map(1).scan(0, function(x, y) {
+      return x + y;
+    })
+    .map(function(count) {
+      return shuffledCells[count % shuffledCells.length];
+    });
+
+  Bacon.zipAsArray(hideImageStream, shuffledCellStream)
+    .onValue(addImageToCell);
+
 });
