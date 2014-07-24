@@ -29,28 +29,38 @@ updater.subscribe('/api/downloads', images, function(download) {
   return download.mediaType === 'image';
 });
 
-// Update image slots when image collection changes
+// Update image cells when image collection changes
 
-var NUM_SLOTS = 15;
+var imageStream = Bacon.fromEventTarget(images, 'sync')
+  .take(1)
+  .mapEnd()
+  .flatMap(function(collection) {
+    if (collection) {
+      return Bacon.fromArray(collection.take(config.numCells));
+    } else {
+      return Bacon.fromEventTarget(images, 'add')
+        .bufferingThrottle(1000);
+    }
+  });
 
-var imageStream = Bacon.fromEventTarget(images, 'add').take(NUM_SLOTS);
+var shuffledCells = _.chain(_.range(config.numCells))
+  .shuffle()
+  .map(function(number) {
+    return $('#cell-' + number);
+  })
+  .value();
 
-var shuffledSlots = _.map(_.shuffle(_.range(NUM_SLOTS)), function(number) {
-  return $('#slot-' + number);
-});
-
-var shuffledSlotIdStream = imageStream
+var shuffledCellStream = imageStream
   .map(1).scan(0, function(x, y) {
     return x + y;
   })
   .map(function(count) {
-    return shuffledSlots[count % shuffledSlots.length];
+    return shuffledCells[count % shuffledCells.length];
   });
 
-Bacon.zipAsArray(imageStream, shuffledSlotIdStream)
-  .bufferingThrottle(1000)
+Bacon.zipAsArray(imageStream, shuffledCellStream)
   .onValue(function(value) {
     var image = value[0];
-    var $slot = value[1];
-    $slot.css('background-image', 'url(' + image.fileUrl() + ')');
+    var $cell = value[1];
+    $cell.css('background-image', 'url(' + image.fileUrl() + ')');
   });

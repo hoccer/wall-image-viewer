@@ -4,7 +4,8 @@ var querystring = require('querystring');
 var _ = require('underscore');
 
 var defaults = {
-  backendUrl: ''
+  backendUrl: '',
+  numCells: 15
 };
 
 var query = querystring.parse(window.location.search.substr(1));
