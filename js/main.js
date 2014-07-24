@@ -60,9 +60,12 @@ var shuffledCellStream = imageStream
     return shuffledCells[count % shuffledCells.length];
   });
 
-Bacon.zipAsArray(imageStream, shuffledCellStream)
+Bacon.zipWith(function(image, $cell) {
+  return {
+    image: image,
+    $cell: $cell
+  };
+}, imageStream, shuffledCellStream)
   .onValue(function(value) {
-    var image = value[0];
-    var $cell = value[1];
-    $cell.css('background-image', 'url(' + image.fileUrl() + ')');
+    value.$cell.css('background-image', 'url(' + value.image.fileUrl() + ')');
   });
