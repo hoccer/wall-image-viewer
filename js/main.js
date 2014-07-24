@@ -29,7 +29,10 @@ imageCollection.fetch({data: {mediaType: 'image'}}).then(function() {
     })
     .value();
 
-  _.each(_.zip(imageCollection.take(config.numCells), shuffledCells), addImageToCell);
+  imageCollection.chain()
+    .take(config.numCells)
+    .zip(shuffledCells)
+    .each(addImageToCell);
 
   // Update image collection with WebSocket updates
   var updateUrl = function(backendUrl) {
@@ -95,5 +98,4 @@ imageCollection.fetch({data: {mediaType: 'image'}}).then(function() {
 
   Bacon.zipAsArray(hideImageStream, shuffledCellStream)
     .onValue(addImageToCell);
-
 });
