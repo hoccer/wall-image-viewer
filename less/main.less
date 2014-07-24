@@ -1,5 +1,6 @@
 @background-color: #f0f0f0;
 @placeholder-color: #cfcfcf;
+@overlay-color: rgba(255, 255, 255, 0.85);
 @image-spacing: 10px;
 
 @columns: 5;
@@ -10,9 +11,16 @@
   height: 100%;
 }
 
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: @overlay-color;
+}
+
 body {
   box-sizing:border-box;
-  margin: 0px;
+  margin: 0;
   padding: 0.5 * @image-spacing;
 
   background-color: @background-color;
@@ -24,7 +32,7 @@ body {
   font-size: 0;
 }
 
-.image {
+.cell-image {
   display: inline-block;
   
   width: 100% / @columns;
@@ -36,4 +44,17 @@ body {
   background-position: center center;
   background-size: cover;
   background-color: @placeholder-color;
+}
+
+.zoom-image {
+  max-width: 90%;
+  max-height: 90%;
+
+  // center horizontally and vertically
+  position: absolute;
+  margin: auto;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
 }
