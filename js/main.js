@@ -1,16 +1,16 @@
 'use strict';
 
 var Backbone = require('backbone');
-var jQuery = require('jquery');
-var React = require('react');
+var Bacon = require('baconjs');
+var $ = require('jquery');
+var _ = require('underscore');
 
 var CollectionUpdater = require('./collection-updater');
 var config = require('./config');
 var DownloadCollection = require('./models/download-collection');
-var imageGridView = require('./views/image-grid-view');
 
 // Help Backbone find jQuery
-Backbone.$ = jQuery;
+Backbone.$ = $;
 
 // Initialize image collection
 var images = new DownloadCollection();
@@ -29,5 +29,28 @@ updater.subscribe('/api/downloads', images, function(download) {
   return download.mediaType === 'image';
 });
 
-// Render root view component
-React.renderComponent(imageGridView({collection: images}), document.body);
+// Update image slots when image collection changes
+
+var NUM_SLOTS = 15;
+
+var imageStream = Bacon.fromEventTarget(images, 'add').take(NUM_SLOTS);
+
+var shuffledSlots = _.map(_.shuffle(_.range(NUM_SLOTS)), function(number) {
+  return $('#slot-' + number);
+});
+
+var shuffledSlotIdStream = imageStream
+  .map(1).scan(0, function(x, y) {
+    return x + y;
+  })
+  .map(function(count) {
+    return shuffledSlots[count % shuffledSlots.length];
+  });
+
+Bacon.zipAsArray(imageStream, shuffledSlotIdStream)
+  .bufferingThrottle(1000)
+  .onValue(function(value) {
+    var image = value[0];
+    var $slot = value[1];
+    $slot.css('background-image', 'url(' + image.fileUrl() + ')');
+  });
