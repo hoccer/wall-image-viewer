@@ -1,6 +1,9 @@
 @background-color: #f0f0f0;
 @image-spacing: 10px;
 
+@columns: 5;
+@rows: 3;
+
 html {
   height: 100%;
 }
@@ -26,8 +29,8 @@ body {
 .image {
   display: inline-block;
   
-  width: 20%;
-  height: 33.33%;
+  width: 100% / @columns;
+  height: 100% / @rows;
 
   box-sizing:border-box;
   border: 0.5 * @image-spacing solid @background-color;
