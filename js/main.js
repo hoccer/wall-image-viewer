@@ -5,7 +5,7 @@ var Bacon = require('baconjs');
 var $ = require('jquery');
 var _ = require('underscore');
 
-var CollectionUpdater = require('./collection-updater');
+var WebSocketObserver = require('./websocket-observer');
 var config = require('./config');
 var DownloadCollection = require('./models/download-collection');
 
@@ -24,9 +24,11 @@ var updateUrl = function(backendUrl) {
   return url + '/updates';
 };
 
-var updater = new CollectionUpdater(updateUrl(config.backendUrl));
-updater.subscribe('/api/downloads', images, function(download) {
-  return download.mediaType === 'image';
+var observer = new WebSocketObserver(updateUrl(config.backendUrl));
+observer.subscribe('/api/downloads', function(download) {
+  if (download.mediaType === 'image') {
+    images.add(download, {at: 0, merge: true});
+  }
 });
 
 // Update image cells when image collection changes
