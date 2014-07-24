@@ -39,7 +39,7 @@ var imageStream = Bacon.fromEventTarget(images, 'sync')
       return Bacon.fromArray(collection.take(config.numCells));
     } else {
       return Bacon.fromEventTarget(images, 'add')
-        .bufferingThrottle(1000);
+        .bufferingThrottle(config.updateDelay * 1000);
     }
   });
 
