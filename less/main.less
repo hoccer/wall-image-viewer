@@ -5,13 +5,12 @@
 @columns: 5;
 @rows: 3;
 
-html {
+.fullscreen {
+  width: 100%;
   height: 100%;
 }
 
 body {
-  height: 100%;
-
   box-sizing:border-box;
   margin: 0px;
   padding: 0.5 * @image-spacing;
@@ -20,8 +19,6 @@ body {
 }
 
 .image-grid {
-  height: 100%;
-
   // avoid whitespace between rows,
   // see http://davidwalsh.name/remove-whitespace-inline-block
   font-size: 0;
