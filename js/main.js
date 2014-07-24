@@ -60,4 +60,20 @@ images.fetch({data: {mediaType: 'image'}}).then(function() {
 
   Bacon.zipAsArray(imageStream, shuffledCellStream)
     .onValue(addImageToCell);
+
+  // Show new images fullscreen
+  var $overlay = $('#overlay');
+  var $zoomImage = $('#zoom-image');
+
+  imageStream
+    .onValue(function(image) {
+      $zoomImage.attr('src', image.fileUrl());
+      $overlay.removeClass('hidden');
+    });
+
+  imageStream
+    .delay(0.8 * config.updateDelay * 1000)
+    .onValue(function() {
+      $overlay.addClass('hidden');
+    });
 });
