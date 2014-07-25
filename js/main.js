@@ -50,10 +50,9 @@ imageCollection.fetch({data: {mediaType: 'image'}}).then(function() {
   });
 
   // Load data for new images
-  var imageModelStream = Bacon.fromEventTarget(imageCollection, 'add')
-    .bufferingThrottle((config.fullscreenDuration + config.nextImageDelay));
+  var imageStream = Bacon.fromEventTarget(imageCollection, 'add');
 
-  var imageElementStream = imageModelStream
+  var loadedImageStream = imageStream
     .flatMap(function(imageModel) {
       var imageElement = new Image();
       imageElement.src = imageModel.fileUrl();
@@ -61,25 +60,26 @@ imageCollection.fetch({data: {mediaType: 'image'}}).then(function() {
       return Bacon.mergeAll(
         Bacon.fromEventTarget(imageElement, 'load'),
         Bacon.fromEventTarget(imageElement, 'error')
-      ).take(1);
+      ).take(1).map(function() {
+        return imageModel;
+      });
     });
 
-  var loadedImageModelStream = imageModelStream
-    .zip(imageElementStream, function(imageModel) {
-      return imageModel;
-    });
+  // Throttle incoming images
+  var throttledImageStream = loadedImageStream
+    .bufferingThrottle((config.fullscreenDuration + config.nextImageDelay));
 
   // Show new images fullscreen
   var $overlay = $('#overlay');
   var $zoomImage = $('#zoom-image');
 
-  loadedImageModelStream
+  throttledImageStream
     .onValue(function(imageModel) {
       $zoomImage.attr('src', imageModel.fileUrl());
       $overlay.removeClass('hidden');
     });
 
-  var hideImageStream = loadedImageModelStream
+  var hideImageStream = throttledImageStream
     .delay(config.fullscreenDuration);
 
   hideImageStream
@@ -88,7 +88,7 @@ imageCollection.fetch({data: {mediaType: 'image'}}).then(function() {
     });
 
   // Add new images to grid when leaving fullscreen
-  var shuffledCellStream = loadedImageModelStream
+  var shuffledCellStream = throttledImageStream
     .map(1).scan(0, function(x, y) {
       return x + y;
     })
