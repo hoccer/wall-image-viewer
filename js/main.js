@@ -2,12 +2,11 @@
 
 var Backbone = require('backbone');
 var Bacon = require('baconjs');
+var WebClient = require('talk-webclient-js-model');
 var $ = require('jquery');
 var _ = require('underscore');
 
-var WebSocketObserver = require('./websocket-observer');
 var config = require('./config');
-var DownloadCollection = require('./models/download-collection');
 
 // Help Backbone find jQuery
 Backbone.$ = $;
@@ -19,7 +18,10 @@ var addImageToCell = function(params) {
 };
 
 // Initialize image collection
-var imageCollection = new DownloadCollection();
+var imageCollection = new WebClient.Model.DownloadCollection(null, {
+  backendUrl: config.backendUrl
+});
+
 imageCollection.fetch({data: {mediaType: 'image'}}).then(function() {
   // Initialize the grid
   var shuffledCells = _.chain(_.range(config.numCells))
@@ -42,7 +44,7 @@ imageCollection.fetch({data: {mediaType: 'image'}}).then(function() {
     return url + '/updates';
   };
 
-  var observer = new WebSocketObserver(updateUrl(config.backendUrl));
+  var observer = new WebClient.WebSocket.Observer(updateUrl(config.backendUrl));
   observer.subscribe('/api/downloads', function(download) {
     if (download.mediaType === 'image') {
       imageCollection.add(download, {at: 0, merge: true});
