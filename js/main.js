@@ -31,9 +31,11 @@ imageCollection.fetch({data: {mediaType: 'image'}}).then(function() {
     })
     .value();
 
+  var initialNumCells = Math.min(imageCollection.length, config.numCells);
+
   imageCollection.chain()
-    .take(config.numCells)
-    .zip(_.take(shuffledCells, imageCollection.length))
+    .take(initialNumCells)
+    .zip(_.take(shuffledCells, initialNumCells))
     .each(addImageToCell);
 
   // Update image collection with WebSocket updates
@@ -95,7 +97,7 @@ imageCollection.fetch({data: {mediaType: 'image'}}).then(function() {
       return x + y;
     })
     .map(function(count) {
-      return shuffledCells[count % shuffledCells.length];
+      return shuffledCells[(initialNumCells + count) % shuffledCells.length];
     });
 
   Bacon.zipAsArray(hideImageStream, shuffledCellStream)
