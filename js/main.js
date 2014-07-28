@@ -33,7 +33,7 @@ imageCollection.fetch({data: {mediaType: 'image'}}).then(function() {
 
   imageCollection.chain()
     .take(config.numCells)
-    .zip(shuffledCells)
+    .zip(_.take(shuffledCells, imageCollection.length))
     .each(addImageToCell);
 
   // Update image collection with WebSocket updates
