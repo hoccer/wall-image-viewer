@@ -9,7 +9,7 @@
 
 Either use public backend:
 
-* Browse to `http://localhost:8080/?backendUrl=http://wall.talk.hoccer.de:8080`
+* Browse to `http://localhost:8080/?backendUrl=http://wall.talk.hoccer.de`
 
 Or run a local instance:
 
