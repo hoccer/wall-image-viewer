@@ -15,6 +15,12 @@ var addImageToCell = function(params) {
   var imageModel = params[0];
   var $cell = params[1];
   $cell.css('background-image', 'url(' + imageModel.fileUrl() + ')');
+  $cell.attr('data-image-id', imageModel.id);
+};
+
+var removeImageFromGrid = function(imageModel) {
+  var $cell = $('[data-image-id="' + imageModel.id + '"]');
+  $cell.css('background-image', '');
 };
 
 // Initialize image collection
@@ -53,10 +59,15 @@ images.fetch({data: {mediaType: 'image'}}).then(function() {
   };
 
   var observer = new WebClient.WebSocket.Observer(updateUrl(config.backendUrl));
-  observer.subscribe('/api/downloads', function(download) {
-    if (download.mediaType === 'image') {
-      if (download.approvalState === 'APPROVED') {
+  observer.subscribe('/api/downloads', function(attributes) {
+    var download = new WebClient.Model.DownloadModel(attributes);
+
+    if (download.get('mediaType') === 'image') {
+      if (download.get('approvalState') === 'APPROVED') {
         approvedImages.add(download, {at: 0, merge: true});
+      } else {
+        approvedImages.remove(download);
+        removeImageFromGrid(download);
       }
     }
   });
@@ -79,7 +90,11 @@ images.fetch({data: {mediaType: 'image'}}).then(function() {
 
   // Throttle incoming images
   var throttledImageStream = loadedImageStream
-    .bufferingThrottle((config.fullscreenDuration + config.nextImageDelay));
+    .bufferingThrottle((config.fullscreenDuration + config.nextImageDelay))
+    .filter(function(imageModel) {
+      // Throw out images that have been rejected in the meantime
+      return approvedImages.contains(imageModel);
+    });
 
   // Show new images fullscreen
   var $overlay = $('#overlay');
