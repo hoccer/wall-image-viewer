@@ -18,11 +18,17 @@ var addImageToCell = function(params) {
 };
 
 // Initialize image collection
-var imageCollection = new WebClient.Model.DownloadCollection(null, {
+var images = new WebClient.Model.DownloadCollection(null, {
   backendUrl: config.backendUrl
 });
 
-imageCollection.fetch({data: {mediaType: 'image'}}).then(function() {
+images.fetch({data: {mediaType: 'image'}}).then(function() {
+  // Use approved images only
+  var approvedImages = new WebClient.Model.DownloadCollection(
+    images.where({approvalState: 'APPROVED'}),
+    {backendUrl: config.backendUrl}
+  );
+
   // Initialize the grid
   var shuffledCells = _.chain(_.range(config.numCells))
     .shuffle()
@@ -31,9 +37,9 @@ imageCollection.fetch({data: {mediaType: 'image'}}).then(function() {
     })
     .value();
 
-  var initialNumCells = Math.min(imageCollection.length, config.numCells);
+  var initialNumCells = Math.min(approvedImages.length, config.numCells);
 
-  imageCollection.chain()
+  approvedImages.chain()
     .take(initialNumCells)
     .zip(_.take(shuffledCells, initialNumCells))
     .each(addImageToCell);
@@ -49,12 +55,14 @@ imageCollection.fetch({data: {mediaType: 'image'}}).then(function() {
   var observer = new WebClient.WebSocket.Observer(updateUrl(config.backendUrl));
   observer.subscribe('/api/downloads', function(download) {
     if (download.mediaType === 'image') {
-      imageCollection.add(download, {at: 0, merge: true});
+      if (download.approvalState === 'APPROVED') {
+        approvedImages.add(download, {at: 0, merge: true});
+      }
     }
   });
 
   // Load data for new images
-  var imageStream = Bacon.fromEventTarget(imageCollection, 'add');
+  var imageStream = Bacon.fromEventTarget(approvedImages, 'add');
 
   var loadedImageStream = imageStream
     .flatMap(function(imageModel) {
