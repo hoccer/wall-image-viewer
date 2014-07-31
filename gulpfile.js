@@ -8,8 +8,9 @@ var source = require('vinyl-source-stream');
 var sourcemaps = require('gulp-sourcemaps');
 
 gulp.task('browserify', function() {
-  return browserify('./js/main.js')
-    .bundle({ debug: true })
+  return browserify({debug: true})
+    .add('./js/main.js')
+    .bundle()
     .pipe(source('bundle.js'))
     .pipe(gulp.dest('./dist'))
     .pipe(connect.reload());
