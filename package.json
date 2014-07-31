@@ -2,6 +2,7 @@
   "name": "wall-image-viewer",
   "description": "Viewer Component for Hoccer Wall",
   "version": "0.1.0",
+  "private": true,
   "repository": "git@github.com:hoccer/wall-image-viewer.git",
   "dependencies": {
     "backbone": "^1.1.2",
