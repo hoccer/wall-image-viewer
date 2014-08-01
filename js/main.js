@@ -7,22 +7,29 @@ var $ = require('jquery');
 var _ = require('underscore');
 
 var config = require('./config');
+var Grid = require('./grid');
 
 // Help Backbone find jQuery
 Backbone.$ = $;
 
-// Grid manipulation
-var addImageToCell = function(params) {
-  var image = params[0];
-  var $cell = params[1];
-  $cell.css('background-image', 'url(' + image.fileUrl() + ')');
-  $cell.attr('data-image-id', image.id);
+// Helpers
+var preloadImage = function(image) {
+  var deferred = new $.Deferred();
+  var imageElement = new Image();
+
+  imageElement.onload = deferred.resolve.bind(deferred);
+  imageElement.onerror = deferred.reject.bind(deferred);
+  imageElement.src = image.fileUrl();
+
+  return deferred.promise();
 };
 
-var removeImageFromGrid = function(image) {
-  var $cell = $('[data-image-id="' + image.id + '"]');
-  $cell.css('background-image', '');
-};
+// Initialize grid
+var $cells = _.map(_.range(config.numCells), function(number) {
+  return $('#cell-' + number);
+});
+
+var grid = new Grid($cells);
 
 // Initialize image collection
 var images = new WebClient.Model.DownloadCollection(null, {
@@ -36,20 +43,10 @@ images.fetch({data: {mediaType: 'image'}}).then(function() {
     {backendUrl: config.backendUrl}
   );
 
-  // Initialize the grid
-  var shuffledCells = _.chain(_.range(config.numCells))
-    .shuffle()
-    .map(function(number) {
-      return $('#cell-' + number);
-    })
-    .value();
-
-  var initialNumCells = Math.min(approvedImages.length, config.numCells);
-
+  // Prefill grid
   approvedImages.chain()
-    .take(initialNumCells)
-    .zip(_.take(shuffledCells, initialNumCells))
-    .each(addImageToCell);
+    .take(config.numCells)
+    .each(grid.addImage.bind(grid));
 
   // Update image collection with WebSocket updates
   var updateUrl = function(backendUrl) {
@@ -68,7 +65,7 @@ images.fetch({data: {mediaType: 'image'}}).then(function() {
         approvedImages.add(download, {at: 0, merge: true});
       } else {
         approvedImages.remove(download);
-        removeImageFromGrid(download);
+        grid.removeImage(download);
       }
     }
   });
@@ -78,15 +75,10 @@ images.fetch({data: {mediaType: 'image'}}).then(function() {
 
   var loadedImageStream = imageStream
     .flatMap(function(image) {
-      var imageElement = new Image();
-      imageElement.src = image.fileUrl();
-
-      return Bacon.mergeAll(
-        Bacon.fromEventTarget(imageElement, 'load'),
-        Bacon.fromEventTarget(imageElement, 'error')
-      ).take(1).map(function() {
-        return image;
-      });
+      return Bacon.fromPromise(preloadImage(image))
+        .map(function() {
+          return image;
+        });
     });
 
   // Throttle incoming images
@@ -111,19 +103,8 @@ images.fetch({data: {mediaType: 'image'}}).then(function() {
     .delay(config.fullscreenDuration);
 
   hideImageStream
-    .onValue(function() {
+    .onValue(function(image) {
       $overlay.addClass('hidden');
+      grid.addImage(image);
     });
-
-  // Add new images to grid when leaving fullscreen
-  var shuffledCellStream = throttledImageStream
-    .map(1).scan(0, function(x, y) {
-      return x + y;
-    })
-    .map(function(count) {
-      return shuffledCells[(initialNumCells + count) % shuffledCells.length];
-    });
-
-  Bacon.zipAsArray(hideImageStream, shuffledCellStream)
-    .onValue(addImageToCell);
 });
