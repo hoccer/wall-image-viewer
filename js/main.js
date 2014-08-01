@@ -83,7 +83,7 @@ images.fetch({data: {mediaType: 'image'}}).then(function() {
 
   // Throttle incoming images
   var throttledImageStream = loadedImageStream
-    .bufferingThrottle((config.fullscreenDuration + config.nextImageDelay))
+    .bufferingThrottle(config.fullscreenDuration + config.nextImageDelay)
     .filter(function(image) {
       // Throw out images that have been rejected in the meantime
       return approvedImages.contains(image);
@@ -99,10 +99,8 @@ images.fetch({data: {mediaType: 'image'}}).then(function() {
       $overlay.removeClass('hidden');
     });
 
-  var hideImageStream = throttledImageStream
-    .delay(config.fullscreenDuration);
-
-  hideImageStream
+  throttledImageStream
+    .delay(config.fullscreenDuration)
     .onValue(function(image) {
       $overlay.addClass('hidden');
       grid.addImage(image);
