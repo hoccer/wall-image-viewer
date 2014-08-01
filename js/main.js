@@ -12,14 +12,14 @@ var config = require('./config');
 Backbone.$ = $;
 
 var addImageToCell = function(params) {
-  var imageModel = params[0];
+  var image = params[0];
   var $cell = params[1];
-  $cell.css('background-image', 'url(' + imageModel.fileUrl() + ')');
-  $cell.attr('data-image-id', imageModel.id);
+  $cell.css('background-image', 'url(' + image.fileUrl() + ')');
+  $cell.attr('data-image-id', image.id);
 };
 
-var removeImageFromGrid = function(imageModel) {
-  var $cell = $('[data-image-id="' + imageModel.id + '"]');
+var removeImageFromGrid = function(image) {
+  var $cell = $('[data-image-id="' + image.id + '"]');
   $cell.css('background-image', '');
 };
 
@@ -76,24 +76,24 @@ images.fetch({data: {mediaType: 'image'}}).then(function() {
   var imageStream = Bacon.fromEventTarget(approvedImages, 'add');
 
   var loadedImageStream = imageStream
-    .flatMap(function(imageModel) {
+    .flatMap(function(image) {
       var imageElement = new Image();
-      imageElement.src = imageModel.fileUrl();
+      imageElement.src = image.fileUrl();
 
       return Bacon.mergeAll(
         Bacon.fromEventTarget(imageElement, 'load'),
         Bacon.fromEventTarget(imageElement, 'error')
       ).take(1).map(function() {
-        return imageModel;
+        return image;
       });
     });
 
   // Throttle incoming images
   var throttledImageStream = loadedImageStream
     .bufferingThrottle((config.fullscreenDuration + config.nextImageDelay))
-    .filter(function(imageModel) {
+    .filter(function(image) {
       // Throw out images that have been rejected in the meantime
-      return approvedImages.contains(imageModel);
+      return approvedImages.contains(image);
     });
 
   // Show new images fullscreen
@@ -101,8 +101,8 @@ images.fetch({data: {mediaType: 'image'}}).then(function() {
   var $zoomImage = $('#zoom-image');
 
   throttledImageStream
-    .onValue(function(imageModel) {
-      $zoomImage.attr('src', imageModel.fileUrl());
+    .onValue(function(image) {
+      $zoomImage.attr('src', image.fileUrl());
       $overlay.removeClass('hidden');
     });
 
