@@ -1,11 +1,11 @@
 'use strict';
 
-var $ = require('jquery');
 var _ = require('underscore');
 
 var Grid = module.exports = function($cells) {
   this._$cells = $cells;
   this._$nextCells = [];
+  this._$cellForImageId = {};
 };
 
 Grid.prototype._nextCell = function() {
@@ -19,11 +19,15 @@ Grid.prototype._nextCell = function() {
 Grid.prototype.addImage = function(image) {
   var $cell = this._nextCell();
   $cell.css('background-image', 'url(' + image.fileUrl() + ')');
-  $cell.attr('data-image-id', image.id);
+  this._$cellForImageId[image.id] = $cell;
 };
 
 Grid.prototype.removeImage = function(image) {
-  var $cell = $('[data-image-id="' + image.id + '"]');
-  $cell.css('background-image', '');
-  this._$nextCells.push($cell);
+  var $cell = this._$cellForImageId[image.id];
+
+  if ($cell) {
+    this._$cellForImageId[image.id] = null;
+    $cell.css('background-image', '');
+    this._$nextCells.push($cell);
+  }
 };
