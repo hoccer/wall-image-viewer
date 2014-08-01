@@ -31,3 +31,7 @@ Grid.prototype.removeImage = function(image) {
     this._$nextCells.push($cell);
   }
 };
+
+Grid.prototype.containsImage = function(image) {
+  return !!this._$cellForImageId[image.id];
+};

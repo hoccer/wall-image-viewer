@@ -66,6 +66,14 @@ images.fetch({data: {mediaType: 'image'}}).then(function() {
       } else {
         approvedImages.remove(download);
         grid.removeImage(download);
+
+        var replacementImage = approvedImages.find(function(image) {
+          return !grid.containsImage(image);
+        });
+        
+        if (replacementImage) {
+          grid.addImage(replacementImage);
+        }
       }
     }
   });
