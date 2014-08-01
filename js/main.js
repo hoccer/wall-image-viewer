@@ -11,6 +11,7 @@ var config = require('./config');
 // Help Backbone find jQuery
 Backbone.$ = $;
 
+// Grid manipulation
 var addImageToCell = function(params) {
   var image = params[0];
   var $cell = params[1];
