@@ -5,7 +5,7 @@ var _ = require('underscore');
 var Grid = module.exports = function($cells) {
   this._$cells = $cells;
   this._$nextCells = [];
-  this._$cellForImageId = {};
+  this._$cellByImageId = {};
 };
 
 Grid.prototype._nextCell = function() {
@@ -20,19 +20,19 @@ Grid.prototype.addImage = function(image) {
   if (!this.containsImage(image)) {
     var $cell = this._nextCell();
     $cell.css('background-image', 'url(' + image.fileUrl() + ')');
-    this._$cellForImageId[image.id] = $cell;
+    this._$cellByImageId[image.id] = $cell;
   }
 };
 
 Grid.prototype.removeImage = function(image) {
   if (this.containsImage(image)) {
-    var $cell = this._$cellForImageId[image.id];
-    this._$cellForImageId[image.id] = null;
+    var $cell = this._$cellByImageId[image.id];
+    this._$cellByImageId[image.id] = null;
     $cell.css('background-image', '');
     this._$nextCells.push($cell);
   }
 };
 
 Grid.prototype.containsImage = function(image) {
-  return !!this._$cellForImageId[image.id];
+  return !!this._$cellByImageId[image.id];
 };
