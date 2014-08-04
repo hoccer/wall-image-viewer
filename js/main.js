@@ -8,6 +8,7 @@ var _ = require('underscore');
 
 var config = require('./config');
 var Grid = require('./grid');
+var Lightbox = require('./lightbox');
 
 // Help Backbone find jQuery
 Backbone.$ = $;
@@ -30,6 +31,9 @@ var $cells = _.map(_.range(config.numCells), function(number) {
 });
 
 var grid = new Grid($cells);
+
+// Initialize fullscreen overlay
+var lightbox = new Lightbox($('#overlay'), $('#zoom-image'));
 
 // Initialize image collection
 var images = new WebClient.Model.DownloadCollection(null, {
@@ -74,6 +78,10 @@ images.fetch({data: {mediaType: 'image'}}).then(function() {
         if (replacementImage) {
           grid.addImage(replacementImage);
         }
+
+        if (lightbox.shows(download)) {
+          lightbox.hide();
+        }
       }
     }
   });
@@ -91,26 +99,20 @@ images.fetch({data: {mediaType: 'image'}}).then(function() {
 
   // Throttle incoming images
   var throttledImageStream = loadedImageStream
-    .bufferingThrottle(config.fullscreenDuration + config.nextImageDelay)
-    .filter(function(image) {
-      // Throw out images that have been rejected in the meantime
-      return approvedImages.contains(image);
-    });
+    .bufferingThrottle(config.fullscreenDuration + config.nextImageDelay);
 
   // Show new images fullscreen
-  var $overlay = $('#overlay');
-  var $zoomImage = $('#zoom-image');
-
   throttledImageStream
+    .filter(approvedImages.contains.bind(approvedImages))
     .onValue(function(image) {
-      $zoomImage.attr('src', image.fileUrl());
-      $overlay.removeClass('hidden');
+      lightbox.show(image);
     });
 
   throttledImageStream
     .delay(config.fullscreenDuration)
+    .filter(approvedImages.contains.bind(approvedImages))
     .onValue(function(image) {
-      $overlay.addClass('hidden');
+      lightbox.hide();
       grid.addImage(image);
     });
 });
