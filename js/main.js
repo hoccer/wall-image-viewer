@@ -108,6 +108,7 @@ images.fetch({data: {mediaType: 'image'}}).then(function() {
       lightbox.show(image);
     });
 
+  // Hide images again
   throttledImageStream
     .delay(config.fullscreenDuration)
     .filter(approvedImages.contains.bind(approvedImages))
