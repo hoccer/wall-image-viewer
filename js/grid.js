@@ -17,15 +17,16 @@ Grid.prototype._nextCell = function() {
 };
 
 Grid.prototype.addImage = function(image) {
-  var $cell = this._nextCell();
-  $cell.css('background-image', 'url(' + image.fileUrl() + ')');
-  this._$cellForImageId[image.id] = $cell;
+  if (!this.containsImage(image)) {
+    var $cell = this._nextCell();
+    $cell.css('background-image', 'url(' + image.fileUrl() + ')');
+    this._$cellForImageId[image.id] = $cell;
+  }
 };
 
 Grid.prototype.removeImage = function(image) {
-  var $cell = this._$cellForImageId[image.id];
-
-  if ($cell) {
+  if (this.containsImage(image)) {
+    var $cell = this._$cellForImageId[image.id];
     this._$cellForImageId[image.id] = null;
     $cell.css('background-image', '');
     this._$nextCells.push($cell);
