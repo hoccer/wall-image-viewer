@@ -7,12 +7,17 @@ var Lightbox = module.exports = function($overlay, $image) {
 };
 
 Lightbox.prototype.show = function(image) {
+  var _this = this;
+  this.$image.on('load', function() {
+    _this.$overlay.removeClass('hidden');
+  });
+
   this.$image.attr('src', image.fileUrl());
-  this.$overlay.removeClass('hidden');
   this._image = image;
 };
 
 Lightbox.prototype.hide = function() {
+  this.$image.off('load');
   this.$overlay.addClass('hidden');
   this._image = null;
 };
