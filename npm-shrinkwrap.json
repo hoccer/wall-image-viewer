@@ -19,8 +19,8 @@
     },
     "talk-webclient-js-model": {
       "version": "0.1.0",
-      "from": "../../../../../var/folders/46/nl4v55655bbdxpb_56v7vcvr0000gp/T/npm-99331-4994c920/1421838985645-0.973506405716762/f2a656f9a6c7b6fcec79f7ba79daefdb2b329248",
-      "resolved": "git+ssh://git@github.com:hoccer/talk-webclient-js-model.git#f2a656f9a6c7b6fcec79f7ba79daefdb2b329248"
+      "from": "../../../../../var/folders/46/nl4v55655bbdxpb_56v7vcvr0000gp/T/npm-10572-c1842e7e/1422019779961-0.35403474187478423/a02475c1133c00b55b6059b680a0b094931e6ef4",
+      "resolved": "git+ssh://git@github.com:hoccer/talk-webclient-js-model.git#a02475c1133c00b55b6059b680a0b094931e6ef4"
     },
     "underscore": {
       "version": "1.7.0",
